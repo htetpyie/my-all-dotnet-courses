@@ -1,0 +1,62 @@
+﻿@model PieChartResponseModel
+@section css{
+    <style>
+        #chart {
+            padding: 0;
+            max-width: 380px;
+            margin: 35px auto;
+        }
+    </style>
+}
+<div id="chart-container">
+    <div id="chart"></div>
+</div>
+
+@section scripts{
+    <script src="~/lib/signalr/dist/browser/signalr.js"></script>
+    <script>
+        var series = @Html.Raw(JsonConvert.SerializeObject(Model.Series));
+        var labels = @Html.Raw(JsonConvert.SerializeObject(Model.Labels));
+        bindPieChart(series, labels);
+
+        var connection = new signalR.HubConnectionBuilder().withUrl("/chatHub").build();
+
+        connection.on("ReceiveChart", function (result) {
+            var data = JSON.parse(result);
+            console.log({ data });
+            bindPieChart(data.Series, data.Labels);
+        });
+
+        connection.start().then(function () {
+            document.getElementById("sendButton").disabled = false;
+        }).catch(function (err) {
+            return console.error(err.toString());
+        });
+
+        function bindPieChart(series, labels) {
+            $('#chart-container').html(`<div id="chart"></div>`);
+            var options = {
+                series: series,
+                chart: {
+                    width: 380,
+                    type: 'pie',
+                },
+                labels: labels,
+                responsive: [{
+                    breakpoint: 480,
+                    options: {
+                        chart: {
+                            width: 200
+                        },
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }]
+            };
+
+            var chart = new ApexCharts(document.querySelector("#chart"), options);
+            chart.render();
+        }
+    </script>
+}

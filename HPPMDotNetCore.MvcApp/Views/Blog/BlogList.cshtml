@@ -1,0 +1,182 @@
+﻿@model BlogListResponseModel
+
+@section css{
+    <style>
+
+    </style>
+    }
+@*@{
+    int count = 0;
+}
+<table class="table" id="blog-table">
+    <thead>
+        <tr>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th scope="col">#</th>
+            <th scope="col">Title</th>
+            <th scope="col">Author</th>
+            <th scope="col">Content</th>
+        </tr>
+    </thead>
+    <tbody>
+        
+      @foreach (var item in Model.Blogs)
+        {
+            <tr>
+                <td>
+                    <a href="/Blog/Edit/@item.Blog_Id" class="btn btn-outline-warning">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                    </a>
+                </td>
+                <td>
+                    <a href="/Blog/DeleteBlog/@item.Blog_Id" class="btn btn-outline-warning">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </a>
+                </td>
+                <td>
+                    <button class="btn btn-outline-danger btnDelete" data-id="@item.Blog_Id">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                </td>
+                <th scope="row">@(++count)</th>
+                <td>@item.Blog_Title</td>
+                <td>@item.Blog_Author</td>
+                <td>@item.Blog_Content</td>
+            </tr>
+        }
+    </tbody>
+</table> *@
+
+<table class="table" id="blog-table">
+    <thead>
+        <tr>
+            <th scope="col">id</th>
+            <th scope="col">#</th>
+            <th scope="col">Title</th>
+            <th scope="col">Author</th>
+            <th scope="col">Content</th>
+            <th scope="col"></th>
+            <th scope="col"></th>
+        </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>
+
+
+@section scripts{
+    <script>
+
+        $(document).ready(() => {
+            drawTable();
+        })
+
+         function drawTable(){
+            $("#blog-table").DataTable({
+            "processing": true,
+            "serverSide": true,
+            "filter": true,
+            "ajax": {
+                "url": "/blog/blogTable",
+                "type": "POST",
+                "datatype": "json",
+                //"success": (data,row) => {
+                //    console.log(data);
+                //    console.log(row)
+                //}
+            },
+            "columnDefs": [{
+                "targets": [0],
+                "visible": false,
+                "searchable": false
+            }],
+            "columns": [
+                { "data": "blog_Id", "name": "Id", "autoWidth": true },
+                { "render": function (data, type, row, meta) { 
+                    return meta.row + meta.settings._iDisplayStart + 1; 
+                    }
+                },
+                { "data": "blog_Title", "name": "Blog Name", "autoWidth": true },
+                { "data": "blog_Author", "name": "Blog Author", "autoWidth": true },
+                { "data": "blog_Content", "name": "Blog Content", "autoWidth": true },
+                {
+                "render": function (data,type,full) { 
+                    return `<a href='/Blog/Edit/${full.blog_Id}' class='btn btn-outline-warning'>
+                                <i class="fa-solid fa-pen-to-square"></i>
+                            </a>`;   
+                    }
+                }, 
+                {
+                "render": function (data,type,full) { 
+                    return `<button class="btn btn-outline-danger btnDelete" onclick="clickDelete()" data-id="${full.blog_Id}">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>`;   
+                    }
+                },
+            ]
+            });
+            }
+       
+
+        $('.btnDelete').click(function () {
+            var id = $(this).data('id');
+            console.log({ id });
+
+            //if(!confirm("Are you sure want to delete?")) return;
+
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    deleteBlog(id);
+                }
+            });
+        })
+         
+        function clickDelete(){
+             var id = $(this).data('id');
+            console.log({ id });
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    deleteBlog(id);
+                }
+            });
+        }
+
+        function deleteBlog(id) {
+            $.ajax({
+                url: "/Blog/Delete",
+                type: "POST",
+                dataType: "json",
+                data: { id: id },
+                success: function (result) {
+                    console.debug({ result });
+                    if (result.isSuccess) {
+                        location.href = "/Blog/List";
+                    }
+                },
+                error: function (err) {
+                    console.error(err);
+                }
+            });
+        }
+
+       
+    </script>
+}

@@ -1,0 +1,243 @@
+﻿@page "/fruit"
+@inject AppDbContext Db
+
+<PageTitle>Fruit</PageTitle>
+<h3>Friut</h3>
+
+@if (_message != null && _message.MessageType != EnumMessageType.Default)
+{
+    string css = "";
+    switch (_message.MessageType)
+    {
+        case EnumMessageType.Success:
+            css = "success";
+            break;
+        case EnumMessageType.Error:
+            css = "danger";
+            break;
+        case EnumMessageType.Warning:
+            css = "warning";
+            break;
+        case EnumMessageType.Default:
+        default:
+            break;
+    }
+    <div class="alert alert-@css" role="alert">
+        @_message.Message
+    </div>
+}
+
+<div class="mb-3">
+    <label for="fruit" class="form-label">Fruit Name</label>
+    <input type="text" class="form-control" id="fruit" @bind-value=_model.FruitName placeholder="">
+</div>
+<button type="button" class="btn btn-secondary me-3" @onclick=Cancel>Cancel</button>
+@if (_formType == EnumFormType.Create)
+{
+    <button type="button" class="btn btn-success" @onclick=Save>Save</button>
+}
+else if (_formType == EnumFormType.Edit)
+{
+    <button type="button" class="btn btn-success" @onclick=Save>Update</button>
+}
+@if (_fruits is not null)
+{
+    <table class="table">
+        <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Id</th>
+            <th scope="col">Name</th>
+            <th></th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        @{
+            int count = 0;
+        }
+        @foreach (var item in _fruits)
+        {
+            <tr>
+                <td>
+                    @(++count)
+                </td>
+                <td>@item.FruitId</td>
+                <td>@item.FruitName</td>
+                <td>
+                    <button type="button" @onclick="() => Edit(item.FruitId)" class="btn btn-outline-info">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                    </button>
+                </td>
+                <td>
+                    <button type="button" @onclick="() => ShowDeleteModal(item.FruitId)" class="btn btn-outline-danger">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
+
+@if (_modelStatus == EnumModelStatusType.Show)
+{
+    <div class="modal" tabindex="-1" role="dialog" style="display:block;">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Food</h5>
+                    <button type="button" class="close btn" @onclick=HideDeleteModal data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure to delete ?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" @onclick="() => Delete(_deleteId)" class="btn btn-primary">Yes</button>
+                    <button type="button" class="btn btn-secondary" @onclick=HideDeleteModal>
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private FruitDataModel _model = new FruitDataModel();
+    private List<FruitDataModel> _fruits;
+    private MessageModel _message;
+    private int _deleteId = 0;
+    private EnumFormType _formType = EnumFormType.Create;
+    private EnumModelStatusType _modelStatus = EnumModelStatusType.Hide;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await List();
+    }
+
+    async Task List()
+    {
+        _fruits = await Db.Fruits.OrderByDescending(x => x.FruitId).ToListAsync();
+    //StateHasChanged();
+    }
+
+    private void Cancel()
+    {
+        _model = new FruitDataModel();
+        _formType = EnumFormType.Create;
+    }
+
+    private async Task Save()
+    {
+        if (string.IsNullOrWhiteSpace(_model.FruitName))
+        {
+            _message = new MessageModel
+            {
+                Message = "Fruit Name is required",
+                MessageType = EnumMessageType.Warning
+            };
+            return;
+        }
+        if (_model.FruitId == 0)
+        {
+            await Db.Fruits.AddAsync(_model);
+            var result = await Db.SaveChangesAsync();
+            _message = new MessageModel
+            {
+                Message = result > 0 ? "Saving Successful." : "Saving Failed.",
+                MessageType = result > 0 ? EnumMessageType.Success : EnumMessageType.Error
+            };
+        }
+        else
+        {
+            var item = await Db.Fruits.FirstOrDefaultAsync(x => x.FruitId == _model.FruitId);
+            if (item is null)
+            {
+                _message = new MessageModel
+                {
+                    Message = "Fruit isn't found.",
+                    MessageType = EnumMessageType.Error
+                };
+                return;
+            }
+            item.FruitName = _model.FruitName;
+            Db.Update(item);
+            var result = await Db.SaveChangesAsync();
+            _message = new MessageModel
+            {
+                Message = result > 0 ? "Updating Successful." : "Updating Failed.",
+                MessageType = result > 0 ? EnumMessageType.Success : EnumMessageType.Error
+            };
+        }
+        Cancel();
+        await List();
+    }
+
+    private async Task Edit(int id)
+    {
+        var item = await Db.Fruits.FirstOrDefaultAsync(x => x.FruitId == id);
+        if (item is null)
+        {
+            _message = new MessageModel
+            {
+                Message = "Fruit isn't found.",
+                MessageType = EnumMessageType.Error
+            };
+            return;
+        }
+        _model = item;
+        _formType = EnumFormType.Edit;
+    }
+
+    private void ShowDeleteModal(int id)
+    {
+        _modelStatus = EnumModelStatusType.Show;
+        _deleteId = id;
+    }
+
+    private void HideDeleteModal()
+    {
+        _modelStatus = EnumModelStatusType.Hide;
+        _deleteId = 0;
+    }
+
+    private async Task Delete(int id)
+    {
+        HideDeleteModal();
+        var item = await Db.Fruits.FirstOrDefaultAsync(x => x.FruitId == id);
+        if (item is null)
+        {
+            _message = new MessageModel
+            {
+                Message = "Fruit isn't found.",
+                MessageType = EnumMessageType.Error
+            };
+            return;
+        }
+        Db.Fruits.Remove(item);
+        int result = await Db.SaveChangesAsync();
+
+        if (result > 0)
+        {
+            _message = new MessageModel()
+            {
+                Message = "Fruit is deleted.",
+                MessageType = EnumMessageType.Success
+            };
+        }
+        else
+        {
+            _message = new MessageModel()
+            {
+                Message = "Fruit delete error!.",
+                MessageType = EnumMessageType.Error
+            };
+        }
+
+        await List();
+    }
+
+}

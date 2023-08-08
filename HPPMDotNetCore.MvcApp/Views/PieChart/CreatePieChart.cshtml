@@ -1,0 +1,53 @@
+﻿
+
+<form id="pieChartForm">
+    <div class ="row">
+      <div class="mb-3 m-auto col-md-6">
+        <label for="" class="form-label">PieChart Label</label>
+        <input type="text" class="form-control" name="PieChartLabel" id="pieChartLabel">
+      </div>
+    </div>
+    <div class="row">
+      <div class="mb-3 m-auto col-md-6">
+        <label for="exampleInputPassword1" class="form-label">PieChart Data</label>
+        <input type="number" class="form-control" name="PieChartLabel" id="pieChartData">
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-6 m-auto">
+        <button type="button" id="submitBtn" class="btn btn-primary">Submit</button>
+      </div>
+    </div>
+</form>
+
+
+@section scripts {
+    <script>
+        
+        $('#submitBtn').click(() => Save());
+
+        function Save(){
+            let pieChartLabel = $("#pieChartLabel").val();
+            let pieChartData = $("#pieChartData").val();
+
+            let pieChartDataModel = {
+                PieChartLabel : pieChartLabel,
+                PieChartData : pieChartData
+            };
+
+           $.ajax({
+              type: "POST",
+              url: "/PieChart/Save",
+              data: pieChartDataModel,
+              success: function(data){
+                 console.log("Nice");
+                 console.log(data);
+              },
+              error: function(){
+                  alert("Error");
+              }
+            });
+            
+        }
+    </script>
+}

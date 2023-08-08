@@ -1,0 +1,189 @@
+﻿@model UserReqModel
+@{
+	Layout = null;
+}
+
+<html lang="en" class="h-100" dir="ltr"><head>
+	<!-- PAGE TITLE HERE -->
+	<title>Expense Tracker - Register</title>
+	
+	<!-- FAVICONS ICON -->
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link href="~/dolabtheme/vendor/sweetalert2/dist/sweetalert2.min.css" rel="stylesheet" />
+    <link href="~/dolabTheme/css/style.css" rel="stylesheet">
+    <style>
+        .auth-form {
+            padding: 1.125rem 2.125rem !important;
+        }
+        .error{
+            color: #ff9898;
+        }
+        .password-container{
+			position: relative;
+		}
+		.password-container #eye{
+			position: absolute;
+			cursor: pointer;
+			right: 15px;
+			top: 40%;
+		}
+    </style>
+</head>
+
+<body class="vh-100" data-typography="poppins" data-theme-version="light" data-layout="vertical" data-nav-headerbg="color_1" data-headerbg="color_1" data-sidebar-style="full" data-sibebarbg="color_1" data-theme="theme_1" data-sidebar-position="fixed" data-header-position="fixed" data-container="wide" direction="ltr" data-primary="color_1">
+    <div class="authincation h-100">
+        <div class="container h-100">
+            <div class="row justify-content-center h-100 align-items-center">
+                <div class="col-md-6">
+                    <div class="authincation-content">
+                        <div class="row no-gutters">
+                            <div class="col-xl-12">
+                                <div class="auth-form">
+									<div class="text-center mb-2">
+                                        <h2>Expense Tracker</h2>
+									</div>
+                                    <h4 class="text-center mb-4">Sign up your account</h4>
+                                    <form action="/SignUp/Register" method="post" id="signUpForm">
+                                        <div class="mb-3">
+                                            <label class="mb-1"><strong>Username</strong></label>
+                                            <input type="text" class="form-control" style="text-transform: lowercase" onkeyup="inputUserName(this)" placeholder="username" asp-for="UserName">
+                                        </div>
+                                         <div class="mb-3">
+                                            <label class="mb-1"><strong>Full Name</strong></label>
+                                            <input type="text" class="form-control" placeholder="Full Name" asp-for="FullName">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="mb-1"><strong>Email</strong></label>
+                                            <input type="email" class="form-control" placeholder="hello@example.com" value="ace.htetpyie@gmail.com" asp-for="Email">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="mb-1"><strong>Password</strong></label>
+                                            <div class="password-container">
+                                                <input type="password" class="form-control" value="123@testPassword" asp-for="Password">
+                                                <i class="fa-regular fa-light fa-eye-slash" id="eye"></i>
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="mb-1"><strong>Confirm Password</strong></label>
+                                            <input type="password" class="form-control" value="123@testPassword" name="ConfirmPassword">
+                                        </div>
+                                        <div class="text-center mt-4">
+                                            <button type="button" id="btnRegister" class="btn btn-primary btn-block">Register</button>
+                                        </div>
+                                    </form>
+                                    <div class="new-account mt-3">
+                                        <p class="text-white">Already have an account? <a class="text-primary" href="/signin/login">Sign in</a></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<!--**********************************
+	Scripts
+***********************************-->
+<!-- Required vendors -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js" integrity="sha512-3gJwYpMe3QewGELv8k/BX9vcqhryRdzRMxVfq6ngyWXwo03GFEzjsUm8Q7RZcHPHksttq7/GFoxjCVUjkjvPdw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="~/dolabTheme/vendor/jquery-autocomplete/jquery-ui.js"></script> 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js" integrity="sha512-rstIgDs0xPgmG6RX1Aba4KV5cWJbAMcvRCVmglpam9SoHZiUCyQVDdH2LPlxoHtrv17XWblE/V/PP+Tr04hbtA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="~/dolabtheme/vendor/sweetalert2/dist/sweetalert2.min.js"></script>
+<script>
+
+    let form = document.querySelector('form#signUpForm');
+    var hidePassword = true;
+
+    $(document).ready(()=>{
+        checkFormValidate();
+
+        $('#eye').on('click', function(){
+				hidePassword = !hidePassword;
+				let inputType = hidePassword ? "password" : "text";
+				let eyeClass = hidePassword ? "fa-regular fa-light fa-eye-slash" : "fa-regular fa-light fa-eye"
+				$('#Password').attr("type",inputType);
+				$('#eye').attr("class",eyeClass);
+			})
+    })
+
+    function checkFormValidate(){
+        $(form).validate({
+            rules: {
+                UserName: {
+                    required: true,
+                    minlength: 4,
+                    maxlength: 10,
+                },
+                FullName: {
+                    required: true,
+                    minlength: 8,
+                    maxlength: 30,
+                },
+                Email : {
+                    required: true,
+                    email: true,
+                    maxlength: 30,
+                },
+                Password:{
+                    required: true,
+                    minlength: 8,
+                    maxlength: 20,
+                    //pattern : " /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9])(?!.*\s).{8,20}$/",
+                },
+                ConfirmPassword :{
+                    required: true,
+                    equalTo: "#Password"
+                }
+            },
+            messages : {
+                ConfirmPassword:{
+                    equalTo : "Confirm Password is different."
+                }
+            }
+        })
+    }
+
+    $('#btnRegister').on("click", register)
+
+    function register(){
+       if( !$(form).valid() ) return ;
+
+       let formData = new FormData(form);
+       let data = {};
+       
+       for(const [key,value] of formData){
+           data[key] = value;
+       }
+
+       $.ajax({
+           url : "/signup/register",
+           type: "post",
+           data : data,
+           success: function(response){
+               if(response.isSuccess){
+                   swal("Registration !!", response.message, "success");
+               }
+               else{
+                   swal("Registration !!", response.message, "error");
+               }
+           },
+           error: function(){
+               swal("Registration !!", "Error !", "error");
+           }
+       });
+    }
+
+    function inputUserName(input){
+        let value  = input.value;
+        //const regx = new RegExp('^[a-z\d]+$','g');
+        const regxError = /((?![a-z\d]).)+/g;
+        let isError = regxError.test(value);
+        if(isError){
+            input.value = value.replaceAll(regxError, '');
+        }
+    }
+</script>
+</body></html>

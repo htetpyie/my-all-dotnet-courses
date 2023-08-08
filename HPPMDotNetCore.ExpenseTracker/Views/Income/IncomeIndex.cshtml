@@ -1,0 +1,410 @@
+﻿@{
+    Layout = LayoutService.GetDolabLayout();
+    ViewData["Title"] = "Income";
+}
+
+<div class="row">
+    <div class="col-xl-4 col-lg-12">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title">Income</h4>
+            </div>
+            <div class="card-body">
+                <div class="basic-form">
+                    <form id="incomeForm">
+                        <input type="hidden" id="IncomeId" name="IncomeId"/>
+                        <div class="mb-3 row">
+                            <div class="col-sm-12">
+                                <input type="text" name="IncomeName" id="IncomeName" class="form-control text-end" placeholder="Income Name" tabindex="1">
+                            </div>
+                        </div>
+                        <div class="mb-3 row">
+                            @* <label class="col-sm-2 col-form-label">Amount</label> *@
+                            <div class="col-sm-12">
+                                <input type="text" name="IncomeAmount" id="IncomeAmount" class="amount form-control text-end" placeholder="Amount"
+                                       tabindex="2">
+                            </div>
+                        </div>
+                        <div class="mb-3 row">
+                            <div class="col-sm-2"></div>
+                            <div class="col-sm-10 text-end">
+                                <button type="button" onclick="clickCancelBtn()" class="btn btn-default me-2" tabindex="4">Cancel</button>
+                                <button type="button" id="addBtn" onclick="clickAddBtn()" class="btn btn-default" tabindex="3">Add</button>
+                                <button type="button" id="updateBtn" onclick="clickUpldateBtn()" class="btn btn-default" tabindex="3">Update</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-8 col-lg-12">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title">Income List</h4>
+                <div class="input-group search-area" style="margin: 0 0 0 auto !important;">
+                    <input type="text" class="form-control form-control ui-autocomplete-input" id="searchValue" placeholder="Search here..." autocomplete="off">
+                    <span class="input-group-text">
+                        <a href="javascript:void(0)" onclick="clickSearchBtn()">
+                            <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path opacity="1" d="M16.6751 19.4916C16.2194 19.036 16.2194 18.2973 16.6751 17.8417C17.1307 17.3861 17.8694 17.3861 18.325 17.8417L22.9916 22.5084C23.4473 22.964 23.4473 23.7027 22.9916 24.1583C22.536 24.6139 21.7973 24.6139 21.3417 24.1583L16.6751 19.4916Z" fill="white"></path>
+                                <path d="M12.8333 18.6667C16.055 18.6667 18.6667 16.055 18.6667 12.8334C18.6667 9.61169 16.055 7.00002 12.8333 7.00002C9.61166 7.00002 6.99999 9.61169 6.99999 12.8334C6.99999 16.055 9.61166 18.6667 12.8333 18.6667ZM12.8333 21C8.323 21 4.66666 17.3437 4.66666 12.8334C4.66666 8.32303 8.323 4.66669 12.8333 4.66669C17.3436 4.66669 21 8.32303 21 12.8334C21 17.3437 17.3436 21 12.8333 21Z" fill="white"></path>
+                            </svg>
+                        </a>
+                    </span>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive income-table">
+                                    <table id="incomeTable" class="table primary-table-bordered table-responsive" style="width:100%;">
+                                        <thead>
+                                        <tr>
+                                            <th class="w-40 text-center">Name</th>
+                                            <th class="text-end">Amount</th>
+                                            <th class="w-50 text-center"></th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                
+                                        </tbody>
+                                        <tfoot>
+                                        <tr>
+                                            <th class="text-center">Total Income</th>
+                                            <th id="totalAmount" class="text-end"></th>
+                                            <th></th>
+                                        </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                @* <div id="tbIncome"> *@
+                @* </div> *@
+            </div>
+            <div class="card-footer">
+                <nav aria-label="...">
+                    <ul class="pagination justify-content-center" id="pagination"></ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script>
+        var searchValue;
+        
+        $(document).ready(function(){
+           $('#updateBtn').hide();
+           bindAmount(".amount");
+            loadTable(1,10,'');
+           //loadPage(`/Income/IncomePagination?pageNo=1`);
+        })
+        
+        function loadPage(url){
+            $('#tbIncome').load(url);
+        }
+
+        function checkValidate(){
+             $('#incomeForm').validate({
+                    rules: {
+                        "IncomeName" : {
+                            required: true,
+                            maxlength: 20,
+                            },
+                         IncomeAmount : {
+                            required : true,
+                            maxlength : 12,
+                            number: true,
+                        }
+                    },
+
+                    messages:{
+                        IncomeName : {
+                            required: "Please enter Income Name",
+                            maxlength: "You enter out of max length",
+                            },
+                        IncomeAmount : {
+                            required: "Income Amount is required",
+                            maxlength: "You enter out of max length",
+                            number : "Number only"
+                        }
+                    }
+             })
+        }
+       
+        function clickCancelBtn(){
+            $('#incomeForm').trigger('reset');    
+        }
+        
+        function clickAddBtn(){
+            checkValidate();
+            if($('#incomeForm').valid())
+                saveIncome();
+        }
+        
+        function saveIncome(){
+            let incomeName = $('#IncomeName').val();
+            let incomeAmount = $('#IncomeAmount').val();
+
+            let income = {
+                IncomeName : incomeName,
+                IncomeAmount : incomeAmount
+            }
+
+            $.ajax({
+                url: "/Income/SaveIncome",
+                type: "POST",
+                dataType: "json",
+                data: income,
+                success: function (response) {
+                     $('#incomeForm').trigger("reset");
+                     if(response.isSuccess){
+                         swal("Income Creation", response.message, "success");
+                         loadTable(1,10,searchValue);
+                     }
+                     else{
+                         swal("Income Creation", response.message, "error");
+                     }
+                },
+                error: function (err) {
+                    console.error(err);
+                }
+            });
+        }
+        
+        function clickSearchBtn(){
+            searchValue = $('#searchValue').val();
+            loadTable(1,10,searchValue);
+        }
+        
+        function loadTable(pageNo, pageSize, searchValue){
+            $.ajax({
+                url: `/Income/IncomeList`,
+                type: "GET",
+                dataType: "json",
+                data : {pageNo, pageSize, searchValue},
+                success: function (response) {
+                    let obj = encodeURIComponent(
+                        JSON.stringify(response.incomeList));
+                    response.pageSetting.pageUrl = "/Income/IncomeList?";
+                    
+                    let pageSetting = encodeURIComponent(
+                        JSON.stringify(response.pageSetting));
+                    
+                    drawTable(obj);
+                    
+                    $('#totalAmount').text(response.totalIncome) //Set total amount to footer
+                    
+                    drawPagination(pageSetting);
+                },
+                error: function (err) {
+                    console.error(err);
+                }
+            })
+        }
+
+        function drawTable(obj){
+            let incomeList = JSON.parse(decodeURIComponent(obj));
+            let tbody = $('#incomeTable tbody');
+            tbody.empty();
+            incomeList.map((item) => {
+                let tr =  `<tr>
+                                <td class="text-center">${item.incomeName}</td>
+                                <td class="text-end">${item.incomeAmountAsString}</td>
+                                <td class="text-center"><div class="dropdown">
+                                      <button type="button" class="btn btn-success light sharp" data-bs-toggle="dropdown">
+                                      <svg width="20px" height="20px" viewBox="0 0 24 24" version="1.1"><g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd"><rect x="0" y="0" width="24" height="24"/><circle fill="#000000" cx="5" cy="12" r="2"/><circle fill="#000000" cx="12" cy="12" r="2"/><circle fill="#000000" cx="19" cy="12" r="2"/></g></svg>
+                                      </button>
+                                      <div class="dropdown-menu">
+                                            <button class="dropdown-item" onclick="editIncome(${item.incomeId})">Edit</button>
+                                            <button class="dropdown-item" onclick="clickDelete(${item.incomeId})">Delete</button>
+                                      </div>
+                                  </div>
+                                </td>
+                            </tr>`;
+                tbody.append(tr);
+            })
+        }
+         
+        //(request form server)
+        function editIncome(incomeId){
+             $.ajax({
+                url: "/Income/EditIncome/"+incomeId,
+                type: "POST",
+                dataType: "json",
+                success: function (response) {
+                    if(parseInt(response.incomeId) < 1 || response.incomeId !== incomeId){
+                        swal("Edit Income","Invalid Income", "error")
+                    }
+                    else{
+                       $('#IncomeId').val(response.incomeId);
+                       $('#IncomeName').val(response.incomeName);
+                       let incomeAmount = getThousandSeperatorValue(response.incomeAmount);
+                       $('#IncomeAmount').val(incomeAmount);
+                       $('#addBtn').hide();
+                       $('#updateBtn').show();
+                    }
+                  
+                },
+                error: function (err) {
+                    console.error(err);
+                }
+             });
+        }
+
+        function clickUpldateBtn(){
+            checkValidate();
+            if($('#incomeForm').valid())
+                updateIncome();
+        }
+
+        function updateIncome(){
+            let incomeId = $('#IncomeId').val();
+            let incomeName = $('#IncomeName').val();
+            let incomeAmount = $('#IncomeAmount').val();
+
+            let income = {
+                IncomeId : incomeId,
+                IncomeName : incomeName,
+                IncomeAmount : incomeAmount
+            }
+            $.ajax({
+                url: "/Income/UpdateIncome/"+incomeId,
+                type: "POST",
+                dataType: "json",
+                data: income,
+                success: function (response) {
+                    if(response.isSuccess){
+                        swal("Update Income", response.message, "success")
+                        loadTable(1,10,searchValue);
+                    }
+                    else{
+                        swal("Update Income", response.message, "error")
+                    }
+                    $('#incomeForm').trigger("reset");
+                    $('#updateBtn').hide();
+                    $('#addBtn').show();
+                },
+                error: function (err) {
+                    console.error(err);
+                }
+            });
+        }
+
+        function clickDelete(id){
+            swal({
+                title: "Delete Income !!",
+                text: "Are you sure to Delete !!",
+                type: "warning",
+                showCancelButton: !0,
+                closeOnConfirm: !1,
+                showLoaderOnConfirm: !0
+            }).then((result) =>{
+                if(result.value){
+                   deleteIncome(id);
+                }
+            })
+        }
+
+        function deleteIncome(id) {
+            $.ajax({
+                url: "/Income/DeleteIncome",
+                type: "POST",
+                dataType: "json",
+                data: { id: id },
+                success: function (response) {
+                    if(response.isSuccess){
+                        swal("Delete Income",response.message, "success")
+                        loadTable(1,10, searchValue);
+                    }
+                    else{
+                        swal("Delete Income",response.message, "error")
+                    }
+                },
+                error: function (err) {
+                    console.error(err);
+                }
+            });
+        }
+        
+        
+        //#region Old Codes
+        // function editIncome2(obj){
+                //
+                //     let jsonItem = decodeURIComponent(obj);
+                //     let item = JSON.parse(jsonItem);
+                //
+                //     //console.log({jsonItem,item});
+                //
+                //     $('#IncomeId').val(item.incomeId);
+                //     $('#IncomeName').val(item.incomeName);
+                //     $('#IncomeAmount').val(item.incomeAmount);
+                //     $('#addBtn').hide();
+                //     $('#updateBtn').show();
+                // }
+                
+                
+                // function drawTable(){
+                //      var table = $('#incomeTable').DataTable( {
+                //         createdRow: function ( row, data, index ) {
+                //             $(row).addClass('selected')
+                //         },
+                //         "serverSide": true,
+                //         "scrollY":        "32vh",
+                //         //"scrollCollapse": true,
+                //         "paging":         false,
+                //         "ordering": false,
+                //         "destroy": true,
+                //
+                //         "ajax": {
+                //         "url": "/Income/IncomeList",
+                //         "type": "POST",
+                //         "datatype": "json",
+                //         },
+                //         "columns": [
+                //             { "data": "incomeName", "name": "Income Name", "autoWidth": true },
+                //             { "data": "incomeAmountAsString", "name": "Income Amount", "autoWidth": true },
+                //             {"render": function(data, type, row){
+                //                 let item = encodeURIComponent(JSON.stringify(row));
+                //                 //console.log({item});
+                //                         return `<div class="dropdown">
+                // 						            <button type="button" class="btn btn-success light sharp" data-bs-toggle="dropdown">
+                // 							        <svg width="20px" height="20px" viewBox="0 0 24 24" version="1.1"><g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd"><rect x="0" y="0" width="24" height="24"/><circle fill="#000000" cx="5" cy="12" r="2"/><circle fill="#000000" cx="12" cy="12" r="2"/><circle fill="#000000" cx="19" cy="12" r="2"/></g></svg>
+                // 							        </button>
+                // 							        <div class="dropdown-menu">
+                // 								        <button class="dropdown-item" onclick="editIncome(${row.incomeId})">Edit</button>
+                // 								        <button class="dropdown-item" onclick="clickDelete(${row.incomeId})">Delete</button>
+                // 							        </div>
+                // 						        </div>`; 
+                //                             }
+                //             }],
+                //         footerCallback: function (row, data, start, end, display) {
+                //             var api = this.api();
+                //
+                //             // Total over all pages
+                //             total = api
+                //                 .column(1)
+                //                 .data()
+                //                 .reduce(function (a, b) {
+                //                     return parseInt(a) + parseInt(b);
+                //                 }, 0);
+                //
+                //             // Total over this page
+                //             pageTotal = api
+                //                 .column(1, { page: 'current' })
+                //                 .data()
+                //                 .reduce(function (a, b) {
+                //                     return a+ b;
+                //                 }, 0);
+                //
+                //             $('#total').html(total);
+                //             // Update footer
+                //             //$(api.column(1).footer()).html('$' + pageTotal + ' ( $' + total + ' total)');
+                //            // $(api.column(2).footer()).html('$' + pageTotal + ' ( $' + total + ' total)');
+                //         },
+                //
+                //     });
+                // }
+             //#endregion
+        
+    </script>
+}

@@ -1,0 +1,53 @@
+﻿@{
+    // Layout = LayoutService.GetDolabLayout();
+    Layout = null;
+    string url = "/Income/IncomePagination?pageNo={0}";
+    Model.PageSetting.PageUrl = url;
+    int pageNo = Model.PageSetting.PageNo;
+    int totalPageNo = Model.PageSetting.TotalPageNo;
+    int pageSize = Model.PageSetting.PageSize;
+}
+@model IncomeListRespModel
+
+<table id="incomeTable" class="table primary-table-bordered table-responsive" style="width:100%">
+    <thead>
+    <tr>
+        <th>Name</th>
+        <th>Amount</th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var item in Model.IncomeList)
+    {
+        <tr>
+            <td>@item.IncomeName</td>
+            <td>@item.IncomeAmount</td>
+            <td class="text-center">
+                <div class="dropdown">
+                    <button type="button" class="btn btn-success light sharp" data-bs-toggle="dropdown">
+                        <svg width="20px" height="20px" viewBox="0 0 24 24" version="1.1">
+                            <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                                <rect x="0" y="0" width="24" height="24"/><circle fill="#000000" cx="5" cy="12" r="2"/><circle fill="#000000" cx="12" cy="12" r="2"/><circle fill="#000000" cx="19" cy="12" r="2"/>
+                            </g>
+                        </svg>
+                    </button>
+                    <div class="dropdown-menu">
+                        <button class="dropdown-item" onclick="editIncome(@item.IncomeId)">Edit</button>
+                        <button class="dropdown-item" onclick="clickDelete(@item.IncomeId)">Delete</button>
+                    </div>
+                </div>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
+@* @await Html.PartialAsync(LayoutService.GetPagination(), Model.PageSetting) *@
+@await Html.PartialAsync(LayoutService.GetComponentPagination(), Model.PageSetting)
+
+@* *@
+@* <script> *@
+@*     function loadTable2(url){ *@
+@*         $('#tbIncome').load(url); *@
+@*     } *@
+@* </script> *@

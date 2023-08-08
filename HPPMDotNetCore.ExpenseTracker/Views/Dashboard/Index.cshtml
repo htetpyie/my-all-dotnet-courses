@@ -1,0 +1,346 @@
+﻿@{
+    Layout = LayoutService.GetDolabLayout();
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="row" id="card-content">
+    <!----column-- -->
+    <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6">
+        <div class="card  wallet blue">
+            <div class="boxs">
+                <span class="box one"></span>
+                <span class="box two"></span>
+                <span class="box three"></span>
+                <span class="box four"></span>
+            </div>
+            <div class="card-header border-0">
+                <div class="wallet-info">
+                    <span class="font-w400 d-block text-white">Saving</span>
+                    <h4 class="fs-24 font-w600 mb-0 d-inline-flex me-2">$824,571.93</h4>
+                </div>
+                <div class="wallet-icon">
+                    <svg width="62" height="39" viewBox="0 0 62 39" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="42.7722" cy="19.2278" r="19.2278" fill="white" fill-opacity="0.2"/>
+                        <circle cx="19.2278" cy="19.2278" r="19.2278" fill="white" fill-opacity="0.2"/>
+                    </svg>
+                </div>
+            </div>
+            <div class="card-body py-3  d-flex align-items-center  flex-wrap">
+                <div class="value-data p-0 me-3">
+                    <span class="fs-14 font-w400 ">Month Year</span>
+                </div>
+                <div class="value-data p-0">
+                    <span class="value fs-16 "><span class="text-black pe-2 "></span>Income</span>
+                    <span class="value fs-16"><span class="text-black pe-2 "></span>Expense</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!----/column-- -->
+</div>
+
+<div class="row">
+    <div class="col-xl-6 col-lg-3">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title">Top Income</h4>
+            </div>
+            <div class="card-body">
+                <div id="morris_donught" class="morris_chart_height"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-6 col-lg-12">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title">Top Expense</h4>
+            </div>
+            <div class="card-body">
+                <div id="expense_chart" class="morris_chart_height"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title">Recent Transaction</h4>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table id="recentTransaction" class="table table-responsive-sm">
+                        <thead>
+                        <tr>
+                            <th class="text-center" style="width: 40%;">Name</th>
+                            <th class="text-end">Amount</th>
+                            <th class="text-center" style="width: 50%">Date</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title">Income In Current Month</h4>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table id="currentMonthIncome" class="table table-responsive-sm">
+                        <thead>
+                        <tr>
+                            <th class="text-center" style="width: 40%;">Name</th>
+                            <th class="text-end">Amount</th>
+                            <th class="text-center" style="width: 50%;">Date</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title">Expense In Current Month</h4>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table id="currentMonthExpense" class="table table-responsive-sm">
+                        <thead>
+                        <tr>
+                            <th class="text-center" style="width: 40%;">Name</th>
+                            <th class="text-end">Amount</th>
+                            <th class="text-center" style="width: 50%;">Date</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+@section scripts{
+    <script>
+
+		$(document).ready(function(){
+			getIncomeChartData();
+            getExpenseChartData();
+            getCurrentMonthIncome();
+            getCurrentMonthExpense();
+            getRecentTransaction();
+            getMonthlyData(3);
+		});
+
+        function getMonthlyData(count){
+            $.ajax({
+                url: "/Dashboard/getMonthlyData/",
+                type: "Get",
+                data: {count},
+                dataType: "json",
+                success: function (result) {
+                    console.log(result);
+                },
+                error: function (err) {
+                    console.error(err);
+                }
+            });
+        }
+		function getIncomeChartData(){
+			$.ajax({
+                url: "/Dashboard/GetTop5MaxIncome",
+                type: "POST",
+                dataType: "json",
+                success: function (result) {
+					dlabMorris.init(result.data);
+                },
+                error: function (err) {
+                    console.error(err);
+                }
+            });
+		}
+      
+        function getExpenseChartData(){
+			$.ajax({
+                url: "/Dashboard/GetTop5MaxExpense",
+                type: "POST",
+                dataType: "json",
+                success: function (result) {
+                    expenseChart(result);
+                },
+                error: function (err) {
+                    console.error(err);
+                }
+            });
+		}
+
+        function getCurrentMonthExpense(){
+            $.ajax({
+                url: "/Dashboard/GetExpenseInCurrentMonth",
+                type: "POST",
+                dataType: "json",
+                success: function (result) {
+                    let tbody = $('#currentMonthExpense tbody');
+                        $(tbody).empty();
+                    result.map((item) => {
+                        let tr = `<tr>
+                                <td class="text-center">${item.expenseName}</td>
+                                <td class="text-end"><span class="badge badge-danger">- ${item.expenseAmountAsString}</span></td>
+                                <td class="text-center">${item.expenseDateAsString}</td></tr>`;
+                        $(tbody).append(tr);
+                    })
+                    
+                },
+                error: function (err) {
+                    console.error(err);
+                }
+            });
+        }
+
+        function getCurrentMonthIncome(){
+            $.ajax({
+                url: "/Dashboard/GetIncomeInCurrentMonth",
+                type: "POST",
+                dataType: "json",
+                success: function (result) {
+                    let tbody = $('#currentMonthIncome tbody');
+                        $(tbody).empty();
+                    result.map((item) => {
+                        let tr = `<tr>
+                                <td class="text-center">${item.incomeName}</td>
+                                <td class="text-end"><span class="badge badge-success">+ ${item.incomeAmountAsString}</span></td>
+                                <td class="text-center">${item.incomeDateAsString}</td></tr>`;
+                        $(tbody).append(tr);
+                    })
+                },
+                error: function (err) {
+                    console.error(err);
+                }
+            });
+        }
+
+        function getRecentTransaction(){
+			$.ajax({
+                url: "/Dashboard/GetLatestTransaction",
+                type: "POST",
+                dataType: "json",
+                success: function (result) {
+                    let tbody = $('#recentTransaction tbody');
+                        $(tbody).empty();
+                    result.map((item) => {
+                        let badageColor = item.category === "Income" ? "badge-success" : "badge-danger";
+                        let tr = `<tr>
+                                <td class="text-center">${item.name}</td>
+                                <td class="text-end"><span class="badge ${badageColor}">${item.amountAsString}</span></td>
+                                <td class="text-center">${item.createdDateAsString}</td></tr>`;
+                        $(tbody).append(tr);
+                    })
+                    
+                },
+                error: function (err) {
+                    console.error(err);
+                }
+            });
+		}
+
+		var dlabMorris = function(){
+		
+			var screenWidth = $(window).width();
+		
+			var setChartWidth = function(){
+				if(screenWidth <= 768)
+				{
+					var chartBlockWidth = 0;
+					chartBlockWidth = (screenWidth < 300 )?screenWidth:300;
+					jQuery('.morris_chart_height').css('min-width',chartBlockWidth - 31);
+				}
+			}
+		
+			var donutChart = function(data){
+				Morris.Donut({
+					element: 'morris_donught',
+					data: data,
+					resize: true,
+					redraw: true,
+					colors: ['#53cafd', 'rgb(255, 92, 0)', '#ffaa2b', '#1EAE7A','#E43BFF'],
+				});
+			}
+	
+			/* Function ============ */
+			return {
+				init:function(data){
+					setChartWidth();
+					donutChart(data);
+				},
+			
+				resize:function(){
+					screenWidth = $(window).width();
+					setChartWidth();
+					donutChart();
+				}
+			}
+		
+	}();
+
+        function expenseChart(data){
+		     var options = {
+              series: data.series,
+              chart: {
+              width: 400,
+              type: 'donut',
+            },
+            plotOptions: {
+              pie: {
+                startAngle: -90,
+                endAngle: 270
+              }
+            },
+            labels: data.labels,
+            dataLabels: {
+              enabled: false
+            },
+            fill: {
+              type: 'gradient',
+            },
+            legend: {
+              formatter: function(val, opts) {
+                return val + " - " + opts.w.globals.series[opts.seriesIndex]
+              }
+            },
+            responsive: [{
+              breakpoint: 480,
+              options: {
+                chart: {
+                  width: 200
+                },
+                legend: {
+                  position: 'bottom'
+                }
+              }
+            }]
+            };
+
+            var chart = new ApexCharts(document.querySelector("#expense_chart"), options);
+            chart.render();
+        }
+        
+        function createCard(monthlyData){
+            
+        }
+
+    </script>
+}

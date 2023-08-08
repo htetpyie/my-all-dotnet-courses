@@ -1,0 +1,148 @@
+﻿<a asp-action="CreateProduct" asp-controller="Product" class="btn btn-outline-success m-4">Create Product</a>
+<table class="table" id="product-table">
+  <thead>
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">Product Code</th>
+      <th scope="col">Product Name</th>
+      <th scope="col">Product Price</th>
+      <th scope="col">Order</th>
+    </tr>
+  </thead>
+</table>
+
+<div class="modal fade" id="orderModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="exampleModalLabel">Confirm Order</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form>
+            <input type="hidden" name="ProductId" id="productId" />
+          <div class="mb-3">
+            <label for="recipient-name" class="col-form-label">Name:</label>
+            <span class=""  id="productName" readonly></span>
+          </div>
+          <div class="mb-3">
+            <label for="recipient-name" class="form-control-label">Amount:</label>
+            <input type="number" class="form-control" min="0" name="ProductQuantity" id="productQuantity" value="1" required autofocus>
+          </div>
+          <div class="mb-3">
+            <label for="recipient-name" class="col-form-label">Total Price:</label>
+             <input type="hidden" name="ProductPrice" id="productPrice" />
+            <span type="text" class=" " id="totalPrice" readonly></span>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" onclick="saveOrder()" class="btn btn-primary">Order Now</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+@section scripts{
+    <script>
+
+        $(document).ready(() => {
+            drawTable();
+        })
+
+       function drawTable(){
+            $("#product-table").DataTable({
+            "processing": true,
+            "serverSide": true,
+            "filter": true,
+            "ajax": {
+                "url": "/product/productList",
+                "type": "POST",
+                "datatype": "json",
+                //"success": (data,row) => {
+                //    console.log(data);
+                //    console.log(row)
+                //}
+            },
+            //"columnDefs": [{
+            //    "targets": [0],
+            //    "visible": false,
+            //    "searchable": false
+            //}],
+            "columns": [
+                //{ "data": "ProductId", "name": "Id", "autoWidth": true },
+                { "render": function (data, type, row, meta) { 
+                    return meta.row + meta.settings._iDisplayStart + 1; 
+                    }
+                },
+                { "data": "productCode", "name": "Product Code", "autoWidth": true },
+                { "data": "productName", "name": "Product Name", "autoWidth": true },
+                { "data": "productPrice", "name": "Product Price", "autoWidth": true },
+                {
+                "render": function (data,type,full) { //Need to ask data-bs-product using double or single code
+                    return `<a href="#" class='btn btn-outline-primary' 
+                            data-bs-product = '${JSON.stringify(full)}' 
+                            data-bs-toggle="modal" data-bs-target="#orderModal">
+                                <i class="fa-solid fa-cart-plus"></i>
+                            </a>`;   
+                    }
+                }, 
+            ]
+            });
+            }
+       
+       //https://getbootstrap.com/docs/5.3/components/modal/
+       const orderModal = document.getElementById('orderModal')
+       if (orderModal) {
+            orderModal.addEventListener('show.bs.modal', event => {
+            // Button that triggered the modal
+            const button = event.relatedTarget
+            // Extract info from data-bs-* attributes
+            let product = button.getAttribute('data-bs-product') 
+            const result = JSON.parse(product);
+            // If necessary, you could initiate an Ajax request here
+            // and then do the updating in a callback.
+            $('#orderModal #productId').val(result.productId);
+            $('#orderModal #productPrice').val(result.productPrice);
+            $('#orderModal #productName').html(result.productName);
+            let totalPrice = `<span class="text-secondary"> 1 x ${result.productPrice} =</span> ${result.productPrice}`;
+            $('#orderModal #totalPrice').html(totalPrice);
+
+            // Update the modal's content.
+        })
+        }
+
+        $('#orderModal #productQuantity').on('input',function(){
+             let quantity = parseInt( $(this).val(), );
+             let price = parseFloat( $('#orderModal #productPrice').val());
+             quantity = isNaN(quantity) ? 0: quantity;  
+             let totalPrice = `<span class="text-secondary"> ${quantity} x ${price} =</span> ${(quantity*price).toFixed(2)}`;
+             $('#orderModal #totalPrice').html(totalPrice);
+        })
+
+        function saveOrder(){
+            let productId = $('#orderModal #productId').val();
+            let productPrice = $('#orderModal #productPrice').val();
+            let productQuantity = $('#orderModal #productQuantity').val();
+
+            let porductOrder = {
+                ProductId : productId,
+                ProductPrice : productPrice,
+                ProductQuantity : productQuantity
+            }
+           $.ajax({
+              type: "POST",
+              url: "/ProductOrder/Save",
+              data: porductOrder,
+              success: function(data){
+                 console.log("Nice");
+                 $(orderModal).modal('hide');
+              },
+              error: function(){
+                  alert("Error");
+              }
+            });
+        }
+    </script>
+}

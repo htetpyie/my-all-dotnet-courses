@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>netcoreapp3.1</TargetFramework>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Dapper" Version="2.0.123" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.17" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.17" />
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+		<PackageReference Include="Refit" Version="6.3.2" />
+		<PackageReference Include="RepoDb.SqlServer" Version="1.13.1" />
+		<PackageReference Include="RepoDb.SqlServer.BulkOperations" Version="1.13.1" />
+		<PackageReference Include="Microsoft.Data.SqlClient" Version="5.1.1" />
+		<PackageReference Include="RestSharp" Version="110.2.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\HPPMDotNetCore.Models\HPPMDotNetCore.Models.csproj" />
+	  <ProjectReference Include="..\HPPMDotNetCore.Shared\HPPMDotNetCore.Shared.csproj" />
+	</ItemGroup>
+</Project>

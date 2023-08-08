@@ -1,0 +1,53 @@
+﻿@model ProductOrderListResponseModel
+
+<table class="table" id="product-table">
+  <thead>
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">Name</th>
+      <th scope="col">Price</th>
+      <th scope="col">Quantity</th>
+    </tr>
+  </thead>
+  <tbody id="product-table-tbody">
+       
+  </tbody>
+</table>
+
+@section scripts{
+    @*<script src="~/lib/signalr/dist/browser/signalr.js"></script>*@
+    
+    <script>
+        var orderList = @Html.Raw(Model.Orders.ToJson());
+        showTable(orderList);
+
+        var connection = new signalR.HubConnectionBuilder().withUrl("/chatHub").build();
+
+        connection.on("RecieveOrderList", function (data) {
+            var result = JSON.parse(data);
+            showTable(result);
+        });
+        
+        connection.start().then(function () {
+            //document.getelementbyid("sendbutton").disabled = false;
+        }).catch(function (err) {
+            return console.error(err.tostring());
+        });
+       
+        function showTable(list){
+            let tbody = $('#product-table-tbody')
+            $(tbody).empty();
+            $(list).each(function(index,item){
+                let tr = ` <tr>
+                            <td>${++index}</td>
+                            <td>${item.ProductName}</td>
+                            <td>${item.ProductPrice}</td>
+                            <td>
+                                <span class="badge badge-pill badge-warning">${item.ProductQuantity}</span>
+                            </td>
+                        </tr>`;
+                $(tbody).append(tr);
+            })
+        }
+    </script>
+}

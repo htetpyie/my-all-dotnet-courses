@@ -1,0 +1,48 @@
+﻿@model AreaChartResponseModel
+
+@section css{
+    <style>
+        #chart {
+  max-width: 650px;
+  margin: 35px auto;
+}
+    </style>
+}
+
+<div id="chart">
+</div>
+
+@section scripts{
+    <script>
+        let series = @Html.Raw(Model.Series.ToJson());
+        let categories = @Html.Raw(Model.Categories.ToJson());
+
+        var options = {
+  chart: {
+    height: 280,
+    type: "area"
+  },
+  dataLabels: {
+    enabled: false
+  },
+  series: series,
+  fill: {
+    type: "gradient",
+    gradient: {
+      shadeIntensity: 1,
+      opacityFrom: 0.7,
+      opacityTo: 0.9,
+      stops: [0, 90, 100]
+    }
+  },
+  xaxis: {
+    categories: categories
+  },
+};
+
+var chart = new ApexCharts(document.querySelector("#chart"), options);
+
+chart.render();
+
+    </script>
+}

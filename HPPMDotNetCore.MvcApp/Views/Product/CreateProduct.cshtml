@@ -1,0 +1,64 @@
+﻿
+
+<div class="m-3 m-md-0">
+    <form id="productForm">
+    <div class ="row mb-3">
+      <div class=" m-auto col-md-6">
+        <label for="" class="form-label">Product Code</label>
+        <input type="text" class="form-control" name="ProductCode" id="productCode">
+      </div>
+    </div>
+    <div class="row mb-3">
+      <div class=" m-auto col-md-6">
+        <label for="productName" class="form-label">Product Name</label>
+        <input type="text" class="form-control" name="ProductName" id="productName">
+      </div>
+    </div> 
+    <div class="row mb-3">
+      <div class=" m-auto col-md-6">
+        <label for="productPrice" class="form-label">Product Price</label>
+        <input type="number" class="form-control" name="ProductPrice" id="productPrice">
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-6 m-auto">
+        <button type="button" id="submitBtn" class="btn btn-primary">Submit</button>
+      </div>
+    </div>
+</form>
+
+</div>
+
+
+@section scripts {
+    <script>
+        
+        $('#submitBtn').click(() => Save());
+
+        function Save(){
+            let productCode = $("#productCode").val();
+            let productName = $("#productName").val();
+            let productPrice = $("#productPrice").val();
+
+            let productDataModel = {
+                ProductCode : productCode,
+                ProductName : productName,
+                ProductPrice : productPrice,
+            };
+
+           $.ajax({
+              type: "POST",
+              url: "/Product/Save",
+              data: productDataModel,
+              success: function(data){
+                 alert("Create Success");
+                 console.log(data);
+              },
+              error: function(){
+                  alert("Error");
+              }
+            });
+            
+        }
+    </script>
+}

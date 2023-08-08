@@ -1,0 +1,42 @@
+﻿@model PieChartResponseModel
+@section css{
+    <style>
+        #chart {
+            padding: 0;
+            max-width: 380px;
+            margin: 35px auto;
+        }
+    </style>
+}
+
+<div id="chart"></div>
+
+@section scripts{
+    <script>
+        var series = @Html.Raw(JsonConvert.SerializeObject(Model.Series));
+        var labels = @Html.Raw(JsonConvert.SerializeObject(Model.Labels));
+
+        var options = {
+            series: series,
+            chart: {
+                width: 380,
+                type: 'pie',
+            },
+            labels: labels,
+            responsive: [{
+                breakpoint: 480,
+                options: {
+                    chart: {
+                        width: 200
+                    },
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }]
+        };
+
+        var chart = new ApexCharts(document.querySelector("#chart"), options);
+        chart.render();
+    </script>
+}

@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+option csharp_namespace = "HPPMDotNetCore.GrpcService";
+
+package blog;
+
+service BlogApiService {
+  rpc GetBlogs (BlogPageRequest) returns (BlogResponseReply);
+  rpc AddBlog (BlogRequest) returns (BlogReply);
+}
+
+message BlogRequest {
+  int32 BlogId = 1;
+  string BlogTitle = 2;
+  string BlogAuthor = 3;
+  string BlogContent = 4;
+}
+
+message BlogReply {
+  int32 BlogId = 1;
+  string BlogTitle = 2;
+  string BlogAuthor = 3;
+  string BlogContent = 4;
+}
+
+message BlogPageRequest{
+	int32 PageNo = 1;
+	int32 PageSize = 2;
+}
+
+message BlogResponseReply{
+	repeated BlogReply Blogs = 1;
+}

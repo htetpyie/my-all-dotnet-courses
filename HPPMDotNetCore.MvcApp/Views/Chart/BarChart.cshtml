@@ -1,0 +1,63 @@
+﻿@model BarChartResponseModel
+
+@section css{
+    <style>
+        #chart {
+  max-width: 650px;
+  margin: 35px auto;
+}
+    </style>
+}
+
+
+<div id="chart">
+</div>
+
+@section scripts{
+   
+    <script>
+
+         var series = @Html.Raw(Model.Series.ToJson())
+        var categories = @Html.Raw(Model.Categories.ToJson())
+
+        var options = {
+          series: series,
+          chart: {
+          type: 'bar',
+          height: 430
+        },
+        plotOptions: {
+          bar: {
+            horizontal: true,
+            dataLabels: {
+              position: 'top',
+            },
+          }
+        },
+        dataLabels: {
+          enabled: true,
+          offsetX: -6,
+          style: {
+            fontSize: '12px',
+            colors: ['#fff']
+          }
+        },
+        stroke: {
+          show: true,
+          width: 1,
+          colors: ['#fff']
+        },
+        tooltip: {
+          shared: true,
+          intersect: false
+        },
+        xaxis: {
+          categories: categories,
+        },
+        };
+
+        var chart = new ApexCharts(document.querySelector("#chart"), options);
+        chart.render();
+      
+    </script>
+}

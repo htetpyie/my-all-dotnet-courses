@@ -1,0 +1,484 @@
+﻿@{
+    Layout = LayoutService.GetDolabLayout();
+    ViewData["Title"] = "Expense";
+}
+
+<style>
+    a.page-link{
+        font-size: 10px !important;
+    }
+        
+    .input-group.search-area {
+        width: 220px;
+        padding: 0;
+        margin: auto;
+    }
+    
+    div.dataTables_wrapper div.dataTables_filter,
+     div#expenseTable_length{
+        text-align: right;
+        margin-bottom: 0;
+    }
+    
+    .dataTables_wrapper .dataTables_paginate span .paginate_button,
+     .paginate_button.previous,
+     .paginate_button.next
+     {
+        height: 30px !important;
+        width: auto !important;
+        padding: 0 10px !important;
+        margin-left: 0px;
+        margin: 0 2px;
+        line-height: 30px !important;
+        text-align: center;
+        font-size: 12px !important;
+        border-radius: 0.5rem;
+        color: var(--primary) !important;
+        border: 0 !important;
+    }
+   
+</style>
+
+<div class="row">
+    <div class="col-xl-4 col-lg-12">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title">Expense</h4>
+            </div>
+            <div class="card-body">
+                <div class="basic-form">
+                    <form id="expenseForm">
+                        <input type="hidden" id="incomeId" name="incomeId" value="0"/>
+                        <input type="hidden" id="expenseId" name="expenseId"/>
+                        <div class="mb-3 row">
+                            <div class="col-sm-12">
+                                <input type="text" class="form-control text-end" tabindex="1"
+                                       value="From All Income"
+                                       onclick="clickSelectIncomeInput()"
+                                       name="incomeName" id="incomeName" readonly="readonly">
+                            </div>
+                        </div>
+                        <div class="mb-3 row">
+                            <div class="col-sm-12">
+                                <input type="text" name="expenseName" tabindex="2"
+                                       id="expenseName" class="form-control text-end" placeholder="Expense">
+                            </div>
+                        </div>
+                        <div class="mb-3 row">
+                            <div class="col-sm-12">
+                                <input type="text" name="expenseAmount" id="expenseAmount" tabindex="3"
+                                       class="form-control text-end" placeholder="Amount"
+                                       onkeyup="setAmountInput(this)">
+                            </div>
+                        </div>
+                        <div class="mb-3 row">
+                            <div class="col-sm-2"></div>
+                            <div class="col-sm-10 text-end">
+                                <button type="button" onclick="clickCancelBtn()"
+                                        class="btn btn-default me-2" tabindex="5">
+                                    Cancel
+                                </button>
+                                <button type="button" id="addBtn" onclick="clickAddBtn()"
+                                        class="btn btn-default" tabindex="4">
+                                    Add
+                                </button>
+                                <button type="button" id="updateBtn" onclick="clickUpldateBtn()"
+                                        class="btn btn-default" tabindex="4">
+                                    Update
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-8 col-lg-12">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title">Expense List</h4>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table id="expenseTable" class="display" style="width:100%">
+                        <thead>
+                        <tr>
+                            <th style="width: 30%;">Name</th>
+                            <th>Amount</th>
+                            <th style="width: 35%;">Income</th>
+                            <th style="width: 20%;"></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+
+                        </tbody>
+                        <tfoot>
+                        <tr>
+                            <th>Total Amount</th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                        </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+           
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="incomeModal">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Select Income</h4>  
+                <div class="input-group search-area">
+                    <input type="text" class="form-control form-control-sm ui-autocomplete-input" id="searchValue" placeholder="Search here..." autocomplete="off">
+                    <span class="input-group-text">
+                        <a href="javascript:void(0)" onclick="clickSearchBtn()">
+                            <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path opacity="1" d="M16.6751 19.4916C16.2194 19.036 16.2194 18.2973 16.6751 17.8417C17.1307 17.3861 17.8694 17.3861 18.325 17.8417L22.9916 22.5084C23.4473 22.964 23.4473 23.7027 22.9916 24.1583C22.536 24.6139 21.7973 24.6139 21.3417 24.1583L16.6751 19.4916Z" fill="white"></path>
+                                <path d="M12.8333 18.6667C16.055 18.6667 18.6667 16.055 18.6667 12.8334C18.6667 9.61169 16.055 7.00002 12.8333 7.00002C9.61166 7.00002 6.99999 9.61169 6.99999 12.8334C6.99999 16.055 9.61166 18.6667 12.8333 18.6667ZM12.8333 21C8.323 21 4.66666 17.3437 4.66666 12.8334C4.66666 8.32303 8.323 4.66669 12.8333 4.66669C17.3436 4.66669 21 8.32303 21 12.8334C21 17.3437 17.3436 21 12.8333 21Z" fill="white"></path>
+                            </svg>
+                        </a>
+                    </span>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal">
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive income-table">
+                    <table id="incomeTable" class="table primary-table-bordered table-hover" style="width:100%;">
+                        <thead>
+                        <tr>
+                            <th class="text-center" style="width: 50%;">Name</th>
+                            <th class="text-end">Amount</th>
+                            <th class="" style="width: 20%;"></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <nav aria-label="...">
+                    <ul class="pagination" id="pagination"></ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script>
+        var searchValue;
+        
+        $(document).ready(function(){
+           $('#updateBtn').hide();
+           checkValidate();
+           loadTable(1, 10, '');
+           drawExpenseTable();
+        })
+
+        function checkValidate(){
+             $('#expenseForm').validate({
+                    rules: {
+                        "expenseName" : {
+                            "required" :true,
+                            maxlength : 40
+                            },
+                         expenseAmount : {
+                            required : true,
+                            number: true,
+                            maxlength: 12,
+                        }
+                    },
+
+                    messages:{
+                        expenseName : {
+                            required: "Please enter Expense Name"
+                            },
+                        expenseAmount : {
+                            required: "Please enter Expense Amount",
+                        }
+                    }
+             })
+        }
+       
+        function clickSelectIncomeInput(){
+            $('#incomeModal').modal('show');
+        }
+        
+        function clickIncomeRow(incomeId){
+            $('#incomeModal').modal('hide');
+             $.ajax({
+                url: "/Expense/GetIncome",
+                type: "GET",
+                data : {incomeId},
+                dataType: "json",
+                success: function (response) {
+                    if (response.isSuccess){
+                        income = response.data;
+                        $('#incomeId').val(income.incomeId);
+                        $('#incomeName').val(income.incomeName);
+                    }else{
+                        swal("Expense",response.message,"error");
+                    }
+                },
+                error: function (err) {
+                    console.error(err);
+                }
+            });
+        }
+        
+        function clickAddBtn(){
+            if($('#expenseForm').valid())
+                saveExpense();
+        }
+        
+        function clickSearchBtn(){
+            searchValue = $('#searchValue').val();
+            loadTable(1, 10, searchValue);
+        }
+        
+        function saveExpense(){
+            let incomeId = $('#incomeId').val();
+            let expenseName = $('#expenseName').val();
+            let expenseAmount = $('#expenseAmount').val();
+            
+            let Expense = {
+                incomeId : incomeId,
+                expenseName : expenseName,
+                expenseAmount : expenseAmount
+            }
+            $.ajax({
+                url: "/Expense/SaveExpense",
+                type: "POST",
+                dataType: "json",
+                data: Expense,
+                success: function (response) {
+                    if (response.isSuccess){
+                        swal("Expense",response.message,"success");
+                        $('#expenseForm').trigger("reset");
+                        drawExpenseTable();
+                    }else{
+                        swal("Expense",response.message,"error");
+                    }
+                },
+                error: function (err) {
+                    console.error(err);
+                }
+            });
+        }
+
+        function drawExpenseTable(){
+             var table = $('#expenseTable').DataTable( {
+                "serverSide": true,
+                "scrollY":        "35vh",
+                "scrollCollapse": true,
+                // "paging":         true,
+                "ordering": false,
+                "destroy": true,
+
+                "ajax": {
+                "url": "/Expense/expenseList",
+                "type": "POST",
+                "datatype": "json",
+                },
+                "columns": [
+                    { "data": "expenseName", "name": "Expense Name", "autoWidth": true },
+                    { "data": "expenseAmountAsString", "name": "Expense Amount", "autoWidth": true },
+                    { "data": "incomeName", "name": "IncomeName", "autoWidth": true },
+                    {"render": function(data, type, row){
+                                return `<div class="dropdown">
+								            <button type="button" class="btn btn-success light sharp" data-bs-toggle="dropdown">
+									        <svg width="20px" height="20px" viewBox="0 0 24 24" version="1.1"><g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd"><rect x="0" y="0" width="24" height="24"/><circle fill="#000000" cx="5" cy="12" r="2"/><circle fill="#000000" cx="12" cy="12" r="2"/><circle fill="#000000" cx="19" cy="12" r="2"/></g></svg>
+									        </button>
+									        <div class="dropdown-menu">
+										        <button class="dropdown-item" onclick="editExpense(${row.expenseId})">Edit</button>
+										        <button class="dropdown-item" onclick="clickDelete(${row.expenseId})">Delete</a>
+									        </div>
+								        </div>`; 
+                                }
+                    }],
+                   "columnDefs": [ {
+                         "targets": 1,
+                         "className": "text-end",
+                       } ],
+                footerCallback: function (row, data, start, end, display) {
+                    var api = this.api();
+                    
+                    // Total over all pages
+                    total = data
+                    .reduce(function (a, b) {
+                            return a + b.expenseAmount;
+                        }, 0.00);
+                    total = getThousandSeperatorValue(total);
+                    // Update footer
+                    $(api.column(1).footer()).html(total);
+                },
+
+            });
+        }
+
+        function editExpense(expenseId){
+             $.ajax({
+                    url: "/Expense/EditExpense/"+expenseId,
+                    type: "POST",
+                    dataType: "json",
+                    success: function (response) {
+                        if (response.isSuccess){
+                            let expenseReq = response.data;
+                            $('#incomeId').val(expenseReq.incomeId);
+                            $('#incomeName').val(expenseReq.incomeName);
+                            $('#expenseId').val(expenseReq.expenseId);
+                            $('#expenseName').val(expenseReq.expenseName);
+                            let expenseAmount = getThousandSeperatorValue(expenseReq.expenseAmount);
+                            $('#expenseAmount').val(expenseAmount);
+                            $('#addBtn').hide();
+                            $('#updateBtn').show();
+                        }else{
+                            swal("Expense",response.message,"error");
+                        }
+                    },
+                    error: function (err) {
+                        console.error(err);
+                    }
+                });
+            
+        }
+
+        function clickUpldateBtn(){
+            if($('#expenseForm').valid())
+                updateExpense();
+        }
+
+        function updateExpense(){
+            let expenseId = $('#expenseId').val();
+            let incomeId = $('#incomeId').val();
+            let expenseName = $('#expenseName').val();
+            let expenseAmount = $('#expenseAmount').val();
+
+            let Expense = {
+                ExpenseId : expenseId,
+                IncomeId : incomeId,
+                ExpenseName : expenseName,
+                ExpenseAmount : expenseAmount
+            }
+
+            $.ajax({
+                url: "/Expense/UpdateExpense/"+expenseId,
+                type: "POST",
+                dataType: "json",
+                data: Expense,
+                success: function (response) {
+                    if (response.isSuccess){
+                         swal("Expense", response.message, "success");
+                         $('#expenseForm').trigger("reset");
+                         $('#incomeId').val('0');
+                         $('#incomeName').val('0');
+                         drawExpenseTable();
+                         $('#updateBtn').hide();
+                         $('#addBtn').show();
+                    }
+                    else {
+                        swal("Expense", response.message, "error");
+                    }
+                    
+                },
+                error: function (err) {
+                    console.error(err);
+                }
+            });
+        }
+
+        function clickDelete(id){
+            swal({
+                title: "Delete Expense !!",
+                text: "Are you sure to Delete !!",
+                type: "warning",
+                showCancelButton: !0,
+                closeOnConfirm: !1,
+                showLoaderOnConfirm: !0
+            }).then((result) =>{
+                if(result.value){
+                   deleteExpense(id);
+                }
+            })
+        }
+
+        function deleteExpense(id) {
+            $.ajax({
+                url: "/Expense/DeleteExpense",
+                type: "POST",
+                dataType: "json",
+                data: { id: id },
+                success: function (response) {
+                    if (response.isSuccess){
+                         swal("Expense", response.message, "success")
+                         drawExpenseTable();
+                    }else{
+                          swal("Expense", response.message, "error")
+                    }
+                },
+                error: function (err) {
+                    console.error(err);
+                }
+            });
+        }
+       
+        function loadTable(pageNo,pageSize,searchValue){
+            $.ajax({
+                url: "/Expense/GetIncomeList",
+                type: "POST",
+                dataType: "json",
+                data: {pageNo,pageSize,searchValue},
+                success: function (response) {
+                   let obj = encodeURIComponent(JSON.stringify(response.incomeList))
+                      response.pageSetting.pageUrl = "/Income/IncomeList?";
+                      let pageSetting = encodeURIComponent(
+                          JSON.stringify(response.pageSetting));
+                      
+                      drawIncomeTable(obj);
+                      drawPagination(pageSetting);
+                },
+                error: function (err) {
+                    console.error(err);
+                }
+            });
+        }
+
+        function  clickCancelBtn(){
+            $('#expenseForm').trigger('reset');    
+        }
+
+       function drawIncomeTable(obj){
+                   let incomeList = JSON.parse(decodeURIComponent(obj));
+                   let tbody = $('#incomeTable tbody');
+                   tbody.empty();
+                   incomeList.map((item) => {
+                       let tr =  `<tr onclick="clickIncomeRow(${item.incomeId})">
+                                       <td class="text-center" >${item.incomeName}</td>
+                                       <td class="text-end">${item.incomeAmountAsString}</td>
+                                       <td class=""></td>
+                                   </tr>`;
+                       tbody.append(tr);
+                   })
+               }
+               
+   //#region removed codes
+     // function bindSelectBox(list){
+     //     let selectbox = $('#incomeId');
+     //     $(selectbox).empty()
+     //     $(selectbox).append("<option value='0' selected>All</option>")
+     //     list.map((item) => {
+     //         $(selectbox).append(`"<option value='${item.incomeId}'>${item.incomeName}</option>"`)
+     //     })
+     // }
+ 
+    //#endregion
+    </script>
+}

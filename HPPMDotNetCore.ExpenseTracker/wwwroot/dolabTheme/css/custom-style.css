@@ -1,0 +1,15 @@
+﻿.error{
+    color: #ff9898;
+}
+.table-responsive.income-table{
+    height: 350px;
+}
+.input-group.search-area {
+    width: 220px;
+    padding: 0;
+    margin: auto;
+}
+
+span.input-group-text {
+    padding: 0;
+}

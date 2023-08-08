@@ -1,0 +1,108 @@
+﻿@model LineChartResponseModel
+@section css{
+    <style>
+
+        body {
+          font-family: Roboto, sans-serif;
+        }
+
+        #chart {
+          max-width: 650px;
+          margin: 35px auto;
+        }
+    </style>
+}
+
+<div id="chart">
+</div>
+
+@section scripts{
+    <script>
+        var series = @Html.Raw(Model.Series.ToJson());
+        var categories = @Html.Raw(Model.Categories.ToJson());
+        console.log(series);
+        console.log(categories);
+        var options = {
+              chart: {
+                height: 350,
+                type: "line",
+                stacked: false
+              },
+              dataLabels: {
+                enabled: false
+              },
+              colors: ["#FF1654", "#247BA0"],
+              series: series,//
+              stroke: {
+                width: [4, 4]
+              },
+              plotOptions: {
+                bar: {
+                  columnWidth: "20%"
+                }
+              },
+              xaxis: {
+                categories: categories//
+              },
+              yaxis: [
+                {
+                  axisTicks: {
+                    show: true
+                  },
+                  axisBorder: {
+                    show: true,
+                    color: "#FF1654"
+                  },
+                  labels: {
+                    style: {
+                      colors: "#FF1654"
+                    }
+                  },
+                  title: {
+                    text: "Series A",
+                    style: {
+                      color: "#FF1654"
+                    }
+                  }
+                },
+                {
+                  opposite: true,
+                  axisTicks: {
+                    show: true
+                  },
+                  axisBorder: {
+                    show: true,
+                    color: "#247BA0"
+                  },
+                  labels: {
+                    style: {
+                      colors: "#247BA0"
+                    }
+                  },
+                  title: {
+                    text: "Series B",
+                    style: {
+                      color: "#247BA0"
+                    }
+                  }
+                }
+              ],
+              tooltip: {
+                shared: false,
+                intersect: true,
+                x: {
+                  show: false
+                }
+              },
+              legend: {
+                horizontalAlign: "left",
+                offsetX: 40
+              }
+            };
+
+        var chart = new ApexCharts(document.querySelector("#chart"), options);
+
+        chart.render();
+
+    </script>
+}
